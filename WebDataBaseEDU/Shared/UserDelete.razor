@@ -1,0 +1,40 @@
+﻿@using WebDataBaseEDU.Data
+
+<div style="padding-bottom: 1rem">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Age</th>
+            <th>Descriprion</th>
+            <th>IsActive</th>
+            <th>Role</th>
+        </tr>
+        </thead>
+        <tr>
+            <td>@SomeUserToDelete.Name</td>
+            <td>@SomeUserToDelete.Surname</td>
+            <td>@SomeUserToDelete.Age</td>
+            <td>@SomeUserToDelete.Description</td>
+            <td>@SomeUserToDelete.IsActive</td>
+            <td>@SomeUserToDelete.Role</td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    <button @onclick="Cancel" class="btn btn-danger" style="float: right">Cancel</button>
+    <button @onclick="Submit" class="btn btn-success" style="float: right; margin-right: 10px;">Submit</button> 
+</div>
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+    
+    [Parameter] public User SomeUserToDelete { get; set; }
+ 
+    async Task Cancel() => await BlazoredModal.CancelAsync();
+    async Task Submit() => await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+
+    }

@@ -1,0 +1,75 @@
+﻿@using WebDataBaseEDU.Data
+
+<div style="padding-bottom: 1rem">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Surname</th>
+            <th>Age</th>
+            <th>Descriprion</th>
+            <th>IsActive</th>
+            <th>Role</th>
+        </tr>
+        </thead>
+        <tr>
+            <td><input type="text" @bind="@SomeUserToEdit.Name" size="5"></td>
+            <td><input type="text" @bind="@SomeUserToEdit.Surname" size="5"></td>
+            <td><input type="text" @bind="@SomeUserToEdit.Age" size="5"></td>
+            <td>
+                <select class="combobox" @bind="SomeUserToEdit.Description">
+                    <option>male</option>
+                    <option>female</option> 
+                </select>
+            </td>
+            <td>
+                <select class="combobox" @onchange="(e) => ChangeIsActive(e.Value)" >
+                    <option value="True">True</option>
+                    @if (!SomeUserToEdit.IsActive)
+                    {
+                        <option value="False" selected>False</option>
+                    }
+                    else
+                    {
+                        <option value="False">False</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <select class="combobox" @bind="SomeUserToEdit.Role">
+                    <option>admin</option>
+                    <option>user</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    <button @onclick="Cancel" class="btn btn-danger" style="float: right">Cancel</button>
+    <button @onclick="Submit" class="btn btn-success" style="float: right; margin-right: 10px;">Submit</button> 
+</div>
+
+@code {
+
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
+    
+    [Parameter] public User SomeUserToEdit { get; set; }
+ 
+    async Task Cancel() => await BlazoredModal.CancelAsync();
+    
+    async Task Submit() => await BlazoredModal.CloseAsync(ModalResult.Ok(true));
+
+    void ChangeIsActive(object args)
+    {
+        if (string.IsNullOrEmpty(args.ToString()))
+        {
+            return;
+        }
+
+        bool.TryParse(args.ToString(), out var result);
+        
+        SomeUserToEdit.IsActive = result;
+    }
+    
+}

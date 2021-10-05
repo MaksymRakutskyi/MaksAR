@@ -1,0 +1,48 @@
+﻿@page "/database"
+
+@using WebDataBaseEDU.Data
+@using Microsoft.AspNetCore.Http.Features
+
+<TableUsers CurrentUsers="users"/>
+
+@code {
+    
+    List<User> users { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        using (var connection = new SqliteConnection("Data Source = baza.db;"))
+        {
+            connection.Open();
+
+            SqliteCommand command = new SqliteCommand();
+            command.Connection = connection;
+
+            command.CommandText = "SELECT * FROM Users";
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    users = new List<User>();
+                    while (reader.Read())
+                    {               
+                        users.Add(new User() 
+                        {
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Surname = reader.GetString(2),
+                            Age = reader.GetInt32(3),
+                            Description = reader.GetString(4),
+                            IsActive = reader.GetBoolean(5),
+                            Role = reader.GetString(6)
+                        });
+                        
+                    }
+                    
+                }
+            }
+        }
+    }
+
+}

@@ -1,0 +1,110 @@
+﻿@using WebDataBaseEDU.Data
+
+<div>
+    <h1>Table Users</h1>
+    <button class="btn-secondary col-1" @onclick="ResetTable" style="margin-bottom: 1.1em">RESET</button>
+</div>
+<table class="table">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>Name</th>
+        <th>Surname</th>
+        <th>Age</th>
+        <th>Descriprion</th>
+        <th>IsActive</th>
+        <th>Role</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (User item in CurrentUsers)
+    {
+        <RowUser CurrentUser="@item" OnClickDeleteUser="DeleteUser" OnClickEditUser="EditUser"/>
+    }
+    </tbody>
+</table>
+
+<button class="btn-info btn-lg" style="margin-bottom: 2.2em">
+    Add User №@(CurrentUsers.Count + 1)
+</button>
+
+@code {
+
+    [Parameter] public List<User> CurrentUsers { get; set; }
+
+    void DeleteUser(User someUser)
+    {
+        CurrentUsers.Remove(someUser);
+        
+        using (var connection = new SqliteConnection("Data Source = baza.db;"))
+        {
+            connection.Open();
+
+            SqliteCommand command = new SqliteCommand();
+            command.Connection = connection;
+
+            command.CommandText = $"DELETE FROM Users WHERE _id = {someUser.Id}";
+
+            command.ExecuteNonQuery();
+        }
+    }
+
+    void EditUser(User someUser)
+    {
+        using (var connection = new SqliteConnection("Data Source = baza.db;"))
+        {
+            connection.Open();
+
+            SqliteCommand command = new SqliteCommand();
+            command.Connection = connection;
+
+            command.CommandText = $"UPDATE Users SET Name = '{someUser.Name}', Surname = '{someUser.Surname}'," +
+                                  $" Age = {someUser.Age}, Description = '{someUser.Description}'," +
+                                  $" IsActive = {someUser.IsActive}, Role = '{someUser.Role}'" +
+                                  $" WHERE _id = {someUser.Id}";
+            
+            /*command.CommandText = $"UPDATE Users SET Name = 'Maksym', Surname = 'Rakutskyi', Age = 22," +
+                                  $" Description = 'male', IsActive = 1, Role = 'admin' WHERE _id = {someUser.Id}";*/
+
+            command.ExecuteNonQuery();
+        }
+    }
+
+    void ResetTable()
+    {
+        using (var connection = new SqliteConnection("Data Source = baza.db;"))
+        {
+            connection.Open();
+
+            SqliteCommand command = new SqliteCommand();
+            command.Connection = connection;
+
+            command.CommandText = "DROP TABLE IF EXISTS Users";
+            command.ExecuteNonQuery();
+
+            command.CommandText = "CREATE TABLE IF NOT EXISTS " +
+                                  "Users (_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, Name STRING NOT NULL, " +
+                                  "Surname STRING NOT NULL, Age INTEGER NOT NULL, Description STRING NOT NULL, " +
+                                  "IsActive BOOL NOT NULL, Role STRING NOT NULL)";
+            command.ExecuteNonQuery();
+
+            command.CommandText = "INSERT INTO Users (Name, Surname, Age, Description, IsActive, Role) VALUES " +
+                                  "('Massimo', 'Bevan', 23, 'male', 1, 'admin'), " +
+                                  "('Gaia', 'Rasmussen', 20, 'female', 0, 'user'), " +
+                                  "('Abraham', 'Tanner', 12, 'male', 1, 'user'), " +
+                                  "('Tara', 'Page', 89, 'female', 0, 'user'), " +
+                                  "('Calvin', 'Morse', 38, 'male', 0, 'user'), " +
+                                  "('Lillia', 'Carlson', 73, 'female', 0, 'user'), " +
+                                  "('Meredith', 'Peters', 18, 'female', 1, 'admin'), " +
+                                  "('Elwood', 'Sullivan', 13, 'male', 0, 'user'), " +
+                                  "('Alicja', 'Meyer', 45, 'female', 1, 'admin'), " +
+                                  "('Kira', 'Phillips', 29, 'female', 1, 'user')";
+            command.ExecuteNonQuery();
+            
+        }
+        
+        
+    }
+
+}
