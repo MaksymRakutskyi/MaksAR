@@ -104,13 +104,13 @@ using Blazored.Modal.Services;
 #line hidden
 #nullable disable
 #nullable restore
-#line 1 "C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\Shared\RowUser.razor"
+#line 1 "C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\Shared\UserAdd.razor"
 using WebDataBaseEDU.Data;
 
 #line default
 #line hidden
 #nullable disable
-    public partial class RowUser : Microsoft.AspNetCore.Components.ComponentBase
+    public partial class UserAdd : Microsoft.AspNetCore.Components.ComponentBase
     {
         #pragma warning disable 1998
         protected override void BuildRenderTree(Microsoft.AspNetCore.Components.Rendering.RenderTreeBuilder __builder)
@@ -118,51 +118,29 @@ using WebDataBaseEDU.Data;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 20 "C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\Shared\RowUser.razor"
+#line 53 "C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\Shared\UserAdd.razor"
        
 
-    [Parameter] public bool IsShowOrHide { get; set; }
-
-    [Parameter] public User CurrentUser { get; set; }
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
     
-    [Parameter] public EventCallback<User> OnClickDeleteUser { get; set; }
+    [Parameter] public User SomeUserToAdd { get; set; }
+ 
+    async Task Cancel() => await BlazoredModal.CancelAsync();
     
-    [Parameter] public EventCallback<User> OnClickEditUser { get; set; }
+    async Task Submit() => await BlazoredModal.CloseAsync(ModalResult.Ok(true));
 
-    [CascadingParameter] public IModalService Modal { get; set; }
-
-    async Task ShowUserEdit()
+    void ChangeIsActive(object args)
     {
-        var parameters = new ModalParameters();
-        parameters.Add(nameof(UserEdit.SomeUserToEdit), CurrentUser);
-
-        var messageForm = Modal.Show<UserEdit>($"Edit User №{CurrentUser.Id}", parameters);
-        var result = await messageForm.Result;
-        
-        if (!result.Cancelled)
+        if (string.IsNullOrEmpty(args.ToString()))
         {
-            await OnClickEditUser.InvokeAsync(CurrentUser);
+            return;
         }
+
+        bool.TryParse(args.ToString(), out var result);
         
+        SomeUserToAdd.IsActive = result;
     }
     
-    async Task ShowUserDelete()
-    {
-        var parameters = new ModalParameters();
-        parameters.Add(nameof(UserDelete.SomeUserToDelete), CurrentUser);
-
-        var messageForm = Modal.Show<UserDelete>($"Delete User №{CurrentUser.Id} ?", parameters);
-        var result = await messageForm.Result;
-
-        if (!result.Cancelled)
-        {
-            await OnClickDeleteUser.InvokeAsync(CurrentUser);
-        }
-        
-    }
-
-
-
 
 #line default
 #line hidden

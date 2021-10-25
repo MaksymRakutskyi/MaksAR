@@ -129,7 +129,7 @@ using Microsoft.AspNetCore.Http.Features;
 #line 8 "C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\Pages\DataBase.razor"
        
     
-    List<User> users { get; set; }
+    List<User> Users { get; set; }
     
     protected override void OnInitialized()
     {
@@ -140,16 +140,16 @@ using Microsoft.AspNetCore.Http.Features;
             SqliteCommand command = new SqliteCommand();
             command.Connection = connection;
 
-            command.CommandText = "SELECT * FROM Users";
+            command.CommandText = $"SELECT * FROM Users";
 
             using (SqliteDataReader reader = command.ExecuteReader())
             {
                 if (reader.HasRows)
                 {
-                    users = new List<User>();
+                    Users = new List<User>();
                     while (reader.Read())
                     {               
-                        users.Add(new User() 
+                        Users.Add(new User() 
                         {
                             Id = reader.GetInt32(0),
                             Name = reader.GetString(1),

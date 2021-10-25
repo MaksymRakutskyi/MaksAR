@@ -13,11 +13,11 @@
         </tr>
         </thead>
         <tr>
-            <td><input type="text" @bind="@SomeUserToEdit.Name" size="5"></td>
-            <td><input type="text" @bind="@SomeUserToEdit.Surname" size="5"></td>
-            <td><input type="text" @bind="@SomeUserToEdit.Age" size="5"></td>
+            <td><input type="text" @bind="@SomeUserToAdd.Name" size="5"></td>
+            <td><input type="text" @bind="@SomeUserToAdd.Surname" size="5"></td>
+            <td><input type="text" @bind="@SomeUserToAdd.Age" size="5"></td>
             <td>
-                <select class="combobox" @bind="SomeUserToEdit.Description">
+                <select class="combobox" @bind="SomeUserToAdd.Description">
                     <option>male</option>
                     <option>female</option> 
                 </select>
@@ -25,7 +25,7 @@
             <td>
                 <select class="combobox" @onchange="(e) => ChangeIsActive(e.Value)" >
                     <option value="True">True</option>
-                    @if (!SomeUserToEdit.IsActive)
+                    @if (!SomeUserToAdd.IsActive)
                     {
                         <option value="False" selected>False</option>
                     }
@@ -36,7 +36,7 @@
                 </select>
             </td>
             <td>
-                <select class="combobox" @bind="SomeUserToEdit.Role">
+                <select class="combobox" @bind="SomeUserToAdd.Role">
                     <option>admin</option>
                     <option>user</option>
                 </select>
@@ -47,14 +47,14 @@
 
 <div>
     <button @onclick="Cancel" class="btn btn-danger" style="float: right">Cancel</button>
-    <button @onclick="Submit" class="btn btn-success" style="float: right; margin-right: 10px;">Submit</button> 
+    <button @onclick="Submit" class="btn btn-success" style="float: right; margin-right: 0.4em;">Submit</button> 
 </div>
 
 @code {
 
     [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; }
     
-    [Parameter] public User SomeUserToEdit { get; set; }
+    [Parameter] public User SomeUserToAdd { get; set; }
  
     async Task Cancel() => await BlazoredModal.CancelAsync();
     
@@ -69,7 +69,7 @@
 
         bool.TryParse(args.ToString(), out var result);
         
-        SomeUserToEdit.IsActive = result;
+        SomeUserToAdd.IsActive = result;
     }
     
 }

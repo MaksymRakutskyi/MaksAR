@@ -86,5 +86,5 @@ C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\obj\Debug\net5.0\RazorD
 C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\obj\Debug\net5.0\Razor\Shared\UserEdit.razor.g.cs
 C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\obj\Debug\net5.0\RazorDeclaration\Shared\UserDelete.razor.g.cs
 C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\obj\Debug\net5.0\Razor\Shared\UserDelete.razor.g.cs
-C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\obj\Debug\net5.0\RazorDeclaration\Shared\AddUser.razor.g.cs
-C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\obj\Debug\net5.0\Razor\Shared\AddUser.razor.g.cs
+C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\obj\Debug\net5.0\RazorDeclaration\Shared\UserAdd.razor.g.cs
+C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\obj\Debug\net5.0\Razor\Shared\UserAdd.razor.g.cs

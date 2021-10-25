@@ -8,13 +8,18 @@
     <td>@CurrentUser.Description</td>
     <td>@CurrentUser.IsActive</td>
     <td>@CurrentUser.Role</td>
-    <td>
-        <button @onclick="ShowUserEdit" class="btn btn-success">Edit</button>
-        <button @onclick="ShowUserDelete" class="btn btn-danger"><span class="oi oi-trash"></span></button>
-    </td>
+    @if (IsShowOrHide)
+    {
+        <td>
+            <button @onclick="ShowUserEdit" class="btn btn-success btn-sm" style="margin-right: 0.2em">Edit</button>
+            <button @onclick="ShowUserDelete" class="btn btn-danger btn-sm"><span class="oi oi-trash"></span></button>
+        </td> 
+    }
 </tr>
 
 @code {
+
+    [Parameter] public bool IsShowOrHide { get; set; }
 
     [Parameter] public User CurrentUser { get; set; }
     
@@ -53,7 +58,7 @@
         }
         
     }
-    
-    
-    
+
+
+
 }

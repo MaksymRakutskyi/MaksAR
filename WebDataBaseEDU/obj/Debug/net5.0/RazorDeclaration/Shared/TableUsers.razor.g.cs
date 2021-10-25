@@ -118,11 +118,40 @@ using WebDataBaseEDU.Data;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 32 "C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\Shared\TableUsers.razor"
+#line 62 "C:\Users\User\source\repos\WebDataBaseEDU\WebDataBaseEDU\Shared\TableUsers.razor"
        
-
+    
     [Parameter] public List<User> CurrentUsers { get; set; }
 
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    private User HolderForUser { get; set; }
+
+    private bool ShowHideButtons { get; set; } = true;
+
+    async Task ShowAddUser()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(UserAdd.SomeUserToAdd), HolderForUser = new User()
+        {
+            Name = "",
+            Surname = "",
+            Age = 0,
+            Description = "male",
+            IsActive = false,
+            Role = "user"
+        } );
+
+        var massageFrom = Modal.Show<UserAdd>($"Add New User", parameters);
+        var result = await massageFrom.Result;
+
+        if (!result.Cancelled)
+        {
+            AddUser(HolderForUser);
+        }
+        
+    }
+    
     void DeleteUser(User someUser)
     {
         CurrentUsers.Remove(someUser);
@@ -153,11 +182,40 @@ using WebDataBaseEDU.Data;
                                   $" Age = {someUser.Age}, Description = '{someUser.Description}'," +
                                   $" IsActive = {someUser.IsActive}, Role = '{someUser.Role}'" +
                                   $" WHERE _id = {someUser.Id}";
-            
-            /*command.CommandText = $"UPDATE Users SET Name = 'Maksym', Surname = 'Rakutskyi', Age = 22," +
-                                  $" Description = 'male', IsActive = 1, Role = 'admin' WHERE _id = {someUser.Id}";*/
 
             command.ExecuteNonQuery();
+        }
+    }
+
+    void AddUser(User someUser)
+    {
+        using (var connection = new SqliteConnection("DataSource = baza.db;"))
+        {
+            connection.Open();
+
+            SqliteCommand command = new SqliteCommand();
+            command.Connection = connection;
+
+            command.CommandText = $"INSERT INTO Users (Name, Surname, Age, Description, IsActive, Role) VALUES " +
+                                  $"('{someUser.Name}', '{someUser.Surname}', {someUser.Age}, '{someUser.Description}', " +
+                                  $"{someUser.IsActive}, '{someUser.Role}')";
+
+            command.ExecuteNonQuery();
+            
+            command.CommandText = $"SELECT _id FROM Users ORDER BY _id DESC LIMIT 1";
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    HolderForUser.Id = reader.GetInt32(0);
+
+                }
+                
+            }
+            
+            CurrentUsers.Add(HolderForUser);
+            
         }
     }
 
@@ -170,16 +228,16 @@ using WebDataBaseEDU.Data;
             SqliteCommand command = new SqliteCommand();
             command.Connection = connection;
 
-            command.CommandText = "DROP TABLE IF EXISTS Users";
+            command.CommandText = $"DROP TABLE IF EXISTS Users";
             command.ExecuteNonQuery();
 
-            command.CommandText = "CREATE TABLE IF NOT EXISTS " +
+            command.CommandText = $"CREATE TABLE IF NOT EXISTS " +
                                   "Users (_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, Name STRING NOT NULL, " +
                                   "Surname STRING NOT NULL, Age INTEGER NOT NULL, Description STRING NOT NULL, " +
                                   "IsActive BOOL NOT NULL, Role STRING NOT NULL)";
             command.ExecuteNonQuery();
 
-            command.CommandText = "INSERT INTO Users (Name, Surname, Age, Description, IsActive, Role) VALUES " +
+            command.CommandText = $"INSERT INTO Users (Name, Surname, Age, Description, IsActive, Role) VALUES " +
                                   "('Massimo', 'Bevan', 23, 'male', 1, 'admin'), " +
                                   "('Gaia', 'Rasmussen', 20, 'female', 0, 'user'), " +
                                   "('Abraham', 'Tanner', 12, 'male', 1, 'user'), " +
@@ -192,8 +250,31 @@ using WebDataBaseEDU.Data;
                                   "('Kira', 'Phillips', 29, 'female', 1, 'user')";
             command.ExecuteNonQuery();
             
+            command.CommandText = $"SELECT * FROM Users";
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    CurrentUsers = new List<User>();
+                    while (reader.Read())
+                    {
+                        CurrentUsers.Add(new User()
+                        {
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Surname = reader.GetString(2),
+                            Age = reader.GetInt32(3),
+                            Description = reader.GetString(4),
+                            IsActive = reader.GetBoolean(5),
+                            Role = reader.GetString(6)
+                        });
+
+                    }
+
+                }
+            }
         }
-        
         
     }
 

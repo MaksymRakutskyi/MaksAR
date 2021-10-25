@@ -8,6 +8,44 @@ a, .btn-link {
     color: #0366d6;
 }
 
+input, input:focus, input:active {
+    outline: none;
+}
+
+select {
+    outline: none;
+}
+
+.button-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.1em;
+    width: 100%;
+}
+
+.button-panel-left {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 50%;
+}
+
+.btn-show-hide {
+    width: 21%;
+}
+
+.btn-arrow {
+    border: 2px solid;
+    height: 30px;
+    width: 30px;
+}
+
+.btn-arrow:hover {
+    color: #000000;
+    border-color: #000000;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #1b6ec2;
@@ -33,6 +71,10 @@ a, .btn-link {
 .combobox {
     width: 82.4px;
     height: 30px;
+}
+
+.sidebar {
+    background-color: white;
 }
 
 #blazor-error-ui {

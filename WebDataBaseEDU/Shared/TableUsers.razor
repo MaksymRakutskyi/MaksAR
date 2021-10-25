@@ -1,9 +1,39 @@
 ﻿@using WebDataBaseEDU.Data
 
-<div>
-    <h1>Table Users</h1>
-    <button class="btn-secondary col-1" @onclick="ResetTable" style="margin-bottom: 1.1em">RESET</button>
+<h1>Table Users</h1>
+
+<div class="button-panel">
+    <div class="button-panel-left">
+        <button class="btn btn-info" @onclick="ShowAddUser" style="margin: 0 0.5em 0 0">
+            Add New User
+        </button>
+            
+        @if (ShowHideButtons)
+        {
+            <button class="btn btn-secondary btn-show-hide" @onclick="(() => ShowHideButtons = !ShowHideButtons)">
+                Hide Buttons
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-primary btn-show-hide" @onclick="(() => ShowHideButtons = !ShowHideButtons)">
+                Show Buttons
+            </button>
+        }
+            
+        <button class="btn btn-dark" @onclick="ResetTable" style="margin: 0 0 0 0.5em">RESET</button>
+    </div>
+
+    <div>
+        <button class="btn btn-light btn-arrow btn-sm">
+                <span class="oi oi-chevron-left"></span>
+            </button>
+        <button class="btn btn-light btn-arrow btn-sm">
+            <span class="oi oi-chevron-right"></span>
+        </button>
+    </div>
 </div>
+
 <table class="table">
     <thead>
     <tr>
@@ -14,25 +44,54 @@
         <th>Descriprion</th>
         <th>IsActive</th>
         <th>Role</th>
-        <th></th>
+        @if (ShowHideButtons)
+        {
+            <th>Buttons</th>   
+        } 
     </tr>
     </thead>
     <tbody>
     @foreach (User item in CurrentUsers)
     {
-        <RowUser CurrentUser="@item" OnClickDeleteUser="DeleteUser" OnClickEditUser="EditUser"/>
+        <RowUser CurrentUser="@item" OnClickDeleteUser="DeleteUser" OnClickEditUser="EditUser" 
+                 IsShowOrHide="ShowHideButtons"/>
     }
     </tbody>
 </table>
 
-<button class="btn-info btn-lg" style="margin-bottom: 2.2em">
-    Add User №@(CurrentUsers.Count + 1)
-</button>
-
 @code {
-
+    
     [Parameter] public List<User> CurrentUsers { get; set; }
 
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+    private User HolderForUser { get; set; }
+
+    private bool ShowHideButtons { get; set; } = true;
+
+    async Task ShowAddUser()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add(nameof(UserAdd.SomeUserToAdd), HolderForUser = new User()
+        {
+            Name = "",
+            Surname = "",
+            Age = 0,
+            Description = "male",
+            IsActive = false,
+            Role = "user"
+        } );
+
+        var massageFrom = Modal.Show<UserAdd>($"Add New User", parameters);
+        var result = await massageFrom.Result;
+
+        if (!result.Cancelled)
+        {
+            AddUser(HolderForUser);
+        }
+        
+    }
+    
     void DeleteUser(User someUser)
     {
         CurrentUsers.Remove(someUser);
@@ -63,11 +122,40 @@
                                   $" Age = {someUser.Age}, Description = '{someUser.Description}'," +
                                   $" IsActive = {someUser.IsActive}, Role = '{someUser.Role}'" +
                                   $" WHERE _id = {someUser.Id}";
-            
-            /*command.CommandText = $"UPDATE Users SET Name = 'Maksym', Surname = 'Rakutskyi', Age = 22," +
-                                  $" Description = 'male', IsActive = 1, Role = 'admin' WHERE _id = {someUser.Id}";*/
 
             command.ExecuteNonQuery();
+        }
+    }
+
+    void AddUser(User someUser)
+    {
+        using (var connection = new SqliteConnection("DataSource = baza.db;"))
+        {
+            connection.Open();
+
+            SqliteCommand command = new SqliteCommand();
+            command.Connection = connection;
+
+            command.CommandText = $"INSERT INTO Users (Name, Surname, Age, Description, IsActive, Role) VALUES " +
+                                  $"('{someUser.Name}', '{someUser.Surname}', {someUser.Age}, '{someUser.Description}', " +
+                                  $"{someUser.IsActive}, '{someUser.Role}')";
+
+            command.ExecuteNonQuery();
+            
+            command.CommandText = $"SELECT _id FROM Users ORDER BY _id DESC LIMIT 1";
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    HolderForUser.Id = reader.GetInt32(0);
+
+                }
+                
+            }
+            
+            CurrentUsers.Add(HolderForUser);
+            
         }
     }
 
@@ -80,16 +168,16 @@
             SqliteCommand command = new SqliteCommand();
             command.Connection = connection;
 
-            command.CommandText = "DROP TABLE IF EXISTS Users";
+            command.CommandText = $"DROP TABLE IF EXISTS Users";
             command.ExecuteNonQuery();
 
-            command.CommandText = "CREATE TABLE IF NOT EXISTS " +
+            command.CommandText = $"CREATE TABLE IF NOT EXISTS " +
                                   "Users (_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, Name STRING NOT NULL, " +
                                   "Surname STRING NOT NULL, Age INTEGER NOT NULL, Description STRING NOT NULL, " +
                                   "IsActive BOOL NOT NULL, Role STRING NOT NULL)";
             command.ExecuteNonQuery();
 
-            command.CommandText = "INSERT INTO Users (Name, Surname, Age, Description, IsActive, Role) VALUES " +
+            command.CommandText = $"INSERT INTO Users (Name, Surname, Age, Description, IsActive, Role) VALUES " +
                                   "('Massimo', 'Bevan', 23, 'male', 1, 'admin'), " +
                                   "('Gaia', 'Rasmussen', 20, 'female', 0, 'user'), " +
                                   "('Abraham', 'Tanner', 12, 'male', 1, 'user'), " +
@@ -102,8 +190,31 @@
                                   "('Kira', 'Phillips', 29, 'female', 1, 'user')";
             command.ExecuteNonQuery();
             
+            command.CommandText = $"SELECT * FROM Users";
+
+            using (SqliteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    CurrentUsers = new List<User>();
+                    while (reader.Read())
+                    {
+                        CurrentUsers.Add(new User()
+                        {
+                            Id = reader.GetInt32(0),
+                            Name = reader.GetString(1),
+                            Surname = reader.GetString(2),
+                            Age = reader.GetInt32(3),
+                            Description = reader.GetString(4),
+                            IsActive = reader.GetBoolean(5),
+                            Role = reader.GetString(6)
+                        });
+
+                    }
+
+                }
+            }
         }
-        
         
     }
 
